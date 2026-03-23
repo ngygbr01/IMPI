@@ -193,31 +193,31 @@
             box-shadow: 0 0px 0 var(--btn-secondary-shadow);
         }
 
-        /* Különböző gomb stílusok */
+        /* Fix színű Következő gomb */
         button.next-btn {
-            background-color: var(--current-player-color);
-            box-shadow: 0 8px 0 var(--current-player-shadow);
+            background-color: #5f27cd; /* Fix mélylila szín */
+            box-shadow: 0 8px 0 #341f97;
         }
         button.next-btn:active {
-            box-shadow: 0 0px 0 var(--current-player-shadow);
+            box-shadow: 0 0px 0 #341f97;
         }
 
         button.stat-btn {
             background-color: var(--btn-stat);
             box-shadow: 0 8px 0 var(--btn-stat-shadow);
-            margin-top: 15px;
         }
         button.stat-btn:active {
             box-shadow: 0 0px 0 var(--btn-stat-shadow);
         }
 
         .action-area {
-            height: 100px;
+            min-height: 120px; /* Megnövelt magasság, hogy elférjenek a gombok */
             margin-top: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            gap: 20px; /* Fix távolság a gombok között, hogy ne lógjanak egybe */
             width: 100%;
         }
 
@@ -385,7 +385,7 @@
     <div class="container">
         
         <div id="setup-screen" class="screen active">
-            <h2 class="game-title">Van egy teóriám. <span style="font-size: 2.5rem;">&#129315;</span></h2>
+            <h2 class="game-title">Van egy teóriám.... <span style="font-size: 2.5rem;">&#129315;</span></h2>
             <h1>IMPOSZTOR</h1>
             <p class="instruction">Hányan fogtok játszani?</p>
             
@@ -395,7 +395,7 @@
                 <button class="stepper-btn" onclick="changePlayers(1)">+</button>
             </div>
             
-            <div class="action-area">
+            <div class="action-area" style="min-height: auto;">
                 <button class="main-btn" onclick="startGame()">START!</button>
             </div>
         </div>
@@ -417,7 +417,7 @@
                 </div>
             </div>
 
-            <div class="action-area">
+            <div class="action-area" style="min-height: auto;">
                 <button class="main-btn next-btn" id="next-player-btn" onclick="nextPlayer()" style="opacity: 0; pointer-events: none;">KÖVETKEZŐ</button>
             </div>
         </div>
@@ -473,7 +473,7 @@
             }, 400); 
         }
 
-        // Visszaraktuk a plusz/mínusz gomb logikáját
+        // Plusz/mínusz gomb logikája
         function changePlayers(delta) {
             const display = document.getElementById('player-count-display');
             playerCount = Math.max(3, Math.min(12, playerCount + delta));
@@ -556,7 +556,7 @@
         function nextPlayer() {
             currentPlayer++;
             if (currentPlayer > playerCount) { 
-                // ITT VAN A JAVÍTÁS: Véletlenszerű kezdőjátékos sorsolás
+                // Véletlenszerű kezdőjátékos sorsolás
                 const starterIndex = Math.floor(Math.random() * playerCount) + 1;
                 document.getElementById('starter-player').innerText = starterIndex + ". JÁTÉKOS kezd!";
                 
