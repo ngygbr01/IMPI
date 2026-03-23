@@ -341,16 +341,18 @@
 
         .popup {
             background-color: #f1f2f6;
-            width: 90%;
-            max-width: 360px;
-            padding: 25px;
+            width: 85%; /* Kisebb lett telefonon */
+            max-width: 340px;
+            max-height: 80vh; /* Nem nőhet túl nagyra a képernyőn */
+            padding: 20px 15px; /* Kisebb belső margók */
             border-radius: 35px;
-            /* Játékos "vastag" keret */
             border: 6px solid var(--text-dark);
             box-shadow: 0 20px 0 rgba(0,0,0,0.2);
             position: relative;
             transform: scale(0.7) translateY(30px);
             transition: transform 0.4s var(--easing);
+            display: flex;
+            flex-direction: column;
         }
 
         .overlay.active .popup {
@@ -368,10 +370,10 @@
 
         .stat-list {
             text-align: left;
-            max-height: 350px;
             overflow-y: auto;
-            margin-bottom: 25px;
+            flex-grow: 1; /* Kitölti az ablakot, stagnál a vége */
             padding-right: 5px;
+            margin-bottom: 5px;
         }
 
         /* Gördítősáv formázása */
@@ -381,19 +383,20 @@
 
         .stat-item {
             margin-bottom: 12px;
-            padding: 12px 15px;
+            padding: 10px 12px;
             border-radius: 20px;
             background-color: white;
-            border: 4px solid #ccc; /* Dinamikusan változik JS-ből */
+            border: 4px solid #ccc;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             box-shadow: 0 4px 0 rgba(0,0,0,0.05);
-            /* Berobbanó animáció a listaelemeknek */
             opacity: 0;
             transform: translateX(-20px);
             animation: slideIn 0.4s var(--easing) forwards;
+            width: 100%;
+            box-sizing: border-box; /* Megakadályozza a kilógást */
         }
 
         @keyframes slideIn {
@@ -402,7 +405,7 @@
 
         .close-popup {
             position: absolute;
-            top: -20px;
+            top: -15px; /* Kicsit beljebb húzva, hogy biztos látszódjon */
             right: -10px;
             background: #ff4757;
             border: 4px solid var(--text-dark);
@@ -415,6 +418,7 @@
             font-weight: bold;
             box-shadow: 0 4px 0 var(--text-dark);
             transition: transform 0.1s;
+            z-index: 10;
         }
         .close-popup:active {
             transform: translateY(4px);
@@ -485,7 +489,6 @@
             <h2>Statisztika</h2>
             <div class="stat-list" id="stat-list">
                 </div>
-            <button class="main-btn stat-btn" onclick="closeStatistics()">KÉSZ!</button>
         </div>
     </div>
 
@@ -504,7 +507,7 @@
         let imposterWord = "";
         let currentScreen = 'setup-screen';
         let wordSeen = false;
-        let playerWords = []; // Statisztikához
+        let playerWords = []; 
 
         function switchScreen(screenId) {
             const currentEl = document.getElementById(currentScreen);
@@ -585,7 +588,7 @@
         function handlePointerUp(e) {
             if (currentScreen !== 'card-screen') return; cardElement.classList.remove('flipped');
             if (wordSeen) {
-                setTimeout(() => { nextPlayerBtn.style.opacity = '1'; nextPlayerBtn.style.pointerEvents = 'auto'; }, 500); // Kicsit várunk a rugós animáció miatt
+                setTimeout(() => { nextPlayerBtn.style.opacity = '1'; nextPlayerBtn.style.pointerEvents = 'auto'; }, 500); 
             }
         }
 
@@ -623,7 +626,6 @@
                 const statItem = document.createElement('div');
                 statItem.className = 'stat-item';
                 
-                // Animációs késleltetés (Látványosan ugranak be egymás után)
                 statItem.style.animationDelay = `${index * 0.1}s`;
                 
                 const playerColorObj = playerColors[(item.player - 1) % playerColors.length];
@@ -633,21 +635,22 @@
 
                 if (item.isImposter) {
                     statItem.style.borderColor = '#ff4757';
-                    statItem.style.backgroundColor = '#ffebee'; // Enyhén pirosas háttér
+                    statItem.style.backgroundColor = '#ffebee'; 
+                    // Flex box flex-shrink: 0, és text div flex: 1 min-width: 0 védi a kilógást
                     statItem.innerHTML = `
-                        <div style="font-size: 2.2rem; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));">🕵️</div>
-                        <div style="line-height: 1.2;">
+                        <div style="font-size: 2.2rem; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); flex-shrink: 0;">🕵️</div>
+                        <div style="line-height: 1.2; flex: 1; min-width: 0; word-wrap: break-word;">
                             ${playerNameHtml}<br>
-                            <span style="color:#e84118; font-weight: 800; font-size: 1.1rem;">${item.word}</span>
+                            <span style="color:#e84118; font-weight: 800; font-size: 1.1rem; word-break: break-word;">${item.word}</span>
                         </div>
                     `;
                 } else {
-                    statItem.style.borderColor = '#0be881'; // Az új JÓ zöld
+                    statItem.style.borderColor = '#0be881'; 
                     statItem.innerHTML = `
-                        <div style="font-size: 2.2rem; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));">✅</div>
-                        <div style="line-height: 1.2;">
+                        <div style="font-size: 2.2rem; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); flex-shrink: 0;">✅</div>
+                        <div style="line-height: 1.2; flex: 1; min-width: 0; word-wrap: break-word;">
                             ${playerNameHtml}<br>
-                            <span style="color:#05c46b; font-weight: 800; font-size: 1.1rem;">${item.word}</span>
+                            <span style="color:#05c46b; font-weight: 800; font-size: 1.1rem; word-break: break-word;">${item.word}</span>
                         </div>
                     `;
                 }
