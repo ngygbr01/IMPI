@@ -197,6 +197,7 @@
         button.next-btn {
             background-color: #5f27cd; /* Fix mélylila szín */
             box-shadow: 0 8px 0 #341f97;
+            transition: opacity 0.1s; /* Gyors eltűnés */
         }
         button.next-btn:active {
             box-shadow: 0 0px 0 #341f97;
@@ -211,13 +212,13 @@
         }
 
         .action-area {
-            min-height: 120px; /* Megnövelt magasság, hogy elférjenek a gombok */
+            min-height: 120px; 
             margin-top: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 20px; /* Fix távolság a gombok között, hogy ne lógjanak egybe */
+            gap: 20px; 
             width: 100%;
         }
 
@@ -358,14 +359,17 @@
 
         .stat-item {
             margin-bottom: 10px;
-            padding: 10px;
+            padding: 12px;
             border-radius: 10px;
-            background-color: #f1f2f6;
+            background-color: #f8f9fa; /* Világos háttér, hogy a színek kiemelkedjenek */
+            border-left: 5px solid #ccc; /* Alap keret, amit a JS át fog színezni */
             font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-        
-        .stat-player-normal { color: #2ed573; }
-        .stat-player-imposter { color: #ff4757; background-color: #ffebee; }
 
         .close-popup {
             position: absolute;
@@ -376,6 +380,7 @@
             font-size: 1.5rem;
             cursor: pointer;
             color: var(--text-light);
+            font-weight: bold;
         }
 
     </style>
@@ -385,7 +390,7 @@
     <div class="container">
         
         <div id="setup-screen" class="screen active">
-            <h2 class="game-title">Van egy teóriám.... <span style="font-size: 2.5rem;">&#129315;</span></h2>
+            <h2 class="game-title">Van egy teóriám... 🤣</h2>
             <h1>IMPOSZTOR</h1>
             <p class="instruction">Hányan fogtok játszani?</p>
             
@@ -407,7 +412,7 @@
             <div class="card-container" id="card-trigger">
                 <div class="card" id="card-element">
                     <div class="card-face card-front">
-                        <h2 style="font-size: 2.5rem; color: white;">&#129323;</h2>
+                        <h2 style="font-size: 2.5rem; color: white;">👀</h2>
                         <p style="font-weight: 600;">Nyomd le az ujjad!</p>
                     </div>
                     <div class="card-face card-back">
@@ -424,7 +429,7 @@
 
         <div id="game-screen" class="screen">
             <h1>KÉSZ!</h1>
-            <p class="instruction">Mindenki megkapta a szavát. <br>Ki a gyanús? <span style="font-size: 1.5rem;">&#129300;</span></p>
+            <p class="instruction" style="font-size: 1.3rem;">Mindenki megkapta a szavát.<br><br>Ki a gyanús? 🤔</p>
             <p style="font-weight: 600; color: var(--text-light); margin-bottom: 5px;">A játékot kezdi:</p>
             <div id="starter-player" style="font-size: 2.2rem; color: white; font-weight: 700; margin: 15px 0 25px; padding: 15px; background-color: #1e90ff; border-radius: 20px; box-shadow: 0 8px 0 #3742fa; transform: rotate(-2deg);">X. Játékos</div>
             
@@ -554,6 +559,11 @@
         cardTrigger.addEventListener('touchend', (e) => { e.preventDefault(); handlePointerUp(e); }, {passive: false});
 
         function nextPlayer() {
+            // ITT A JAVÍTÁS: A gomb azonnal, várakozás nélkül eltűnik!
+            const nextBtn = document.getElementById('next-player-btn');
+            nextBtn.style.opacity = '0';
+            nextBtn.style.pointerEvents = 'none';
+
             currentPlayer++;
             if (currentPlayer > playerCount) { 
                 // Véletlenszerű kezdőjátékos sorsolás
@@ -579,13 +589,23 @@
                 const statItem = document.createElement('div');
                 statItem.className = 'stat-item';
                 
+                // Kiszámoljuk a játékos színét
+                const playerColorObj = playerColors[(item.player - 1) % playerColors.length];
+                const playerColor = playerColorObj.main;
+                
+                // Beállítjuk a kis kártya bal oldali csíkját a játékos színére
+                statItem.style.borderLeftColor = playerColor;
+                
+                // Formázzuk a Játékos nevét a saját színével
+                const playerNameHtml = `<span style="color: ${playerColor}; font-weight: 800; font-size: 1.2rem; text-transform: uppercase;">${item.player}. Játékos</span>`;
+
+                // Hozzáadjuk a szót (Imposztor = Piros, Normál = Zöld)
                 if (item.isImposter) {
-                    statItem.classList.add('stat-player-imposter');
-                    statItem.innerHTML = `${item.player}. Játékos: <span style="color:red;">${item.word} (IMPOSZTOR!)</span>`;
+                    statItem.innerHTML = `${playerNameHtml} <span style="color:#ff4757; font-weight: 800; font-size: 1.1rem;">${item.word} (IMPOSZTOR!)</span>`;
                 } else {
-                    statItem.classList.add('stat-player-normal');
-                    statItem.innerHTML = `${item.player}. Játékos: <span style="color:green;">${item.word}</span>`;
+                    statItem.innerHTML = `${playerNameHtml} <span style="color:#2ed573; font-weight: 800; font-size: 1.1rem;">${item.word}</span>`;
                 }
+                
                 statList.appendChild(statItem);
             });
             statOverlay.classList.add('active');
