@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imposztor Játék</title>
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --text-color: #ededed;
+            --primary: #e94560;
+            --secondary: #0f3460;
+            --card-bg: #16213e;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 400px;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-top: 0;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            border-radius: 5px;
+            border: none;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background-color: #d83a52;
+        }
+
+        .word-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #fff;
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px dashed var(--primary);
+            border-radius: 10px;
+            background-color: var(--secondary);
+        }
+
+        .instruction {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #aaa;
+        }
+
+        #starter-player {
+            font-size: 1.8rem;
+            color: #4ecca3;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="setup-screen" class="screen active">
+            <h1>Imposztor</h1>
+            <p class="instruction">Hányan vagytok? (3-12)</p>
+            <input type="number" id="player-count" min="3" max="12" value="4">
+            <button onclick="startGame()">Játék Indítása</button>
+        </div>
+
+        <div id="pass-screen" class="screen">
+            <h1 id="player-turn-text">1. Játékos</h1>
+            <p class="instruction">Add át a telefont ennek a játékosnak!</p>
+            <button onclick="showWord()">Kártya Megfordítása</button>
+        </div>
+
+        <div id="word-screen" class="screen">
+            <h1>A te szavad:</h1>
+            <div class="word-display" id="secret-word">???</div>
+            <p class="instruction">Jegyezd meg jól, majd rejtsd el!</p>
+            <button onclick="hideWord()">Kártya Elrejtése</button>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <h1>Mindenki látta a szavát!</h1>
+            <p class="instruction">Kezdődhet a faggatózás.</p>
+            <p>A játékot kezdi:</p>
+            <div id="starter-player">X. Játékos</div>
+            <button onclick="resetGame()">Új Játék</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Szópárok adatbázisa (Régiós, Trágár, Vicces)
+        const wordPairs = [
+            // Régiós (Szeged/Magyarország)
+            { a: "Szegedi halászlé", b: "Bajai halászlé" },
+            { a: "Szegedi Dóm", b: "Esztergomi Bazilika" },
+            { a: "Tisza", b: "Duna" },
+            { a: "Szegedi papucs", b: "Gumicsizma" },
+            { a: "Boszorkánysziget", b: "Margitsziget" },
+            
+            // Trágár
+            { a: "Faszkalap", b: "Seggfej" },
+            { a: "Kurva", b: "Prosti" },
+            { a: "Lófasz", b: "Semmi" },
+            { a: "Beszari", b: "Fosós" },
+            { a: "Pöcs", b: "Fasz" },
+            
+            // Vicces
+            { a: "Zokniszandál", b: "Crocs" },
+            { a: "Sörhas", b: "Kockahas" },
+            { a: "Mamahotel", b: "Kollégium" },
+            { a: "Puki", b: "Fing" },
+            { a: "Másnaposság", b: "Részegség" }
+        ];
+
+        let playerCount = 0;
+        let currentPlayer = 1;
+        let imposterIndex = 0;
+        let normalWord = "";
+        let imposterWord = "";
+
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function startGame() {
+            const input = document.getElementById('player-count').value;
+            playerCount = parseInt(input);
+
+            if (playerCount < 3 || playerCount > 12) {
+                alert("A játékosok számának 3 és 12 között kell lennie!");
+                return;
+            }
+
+            // Sorsoljuk ki az imposztort (1 és playerCount között)
+            imposterIndex = Math.floor(Math.random() * playerCount) + 1;
+
+            // Válasszunk egy véletlen szópárt
+            const randomPairIndex = Math.floor(Math.random() * wordPairs.length);
+            const pair = wordPairs[randomPairIndex];
+
+            // Véletlenszerűen döntsük el, melyik az imposztor szó és melyik a normál
+            if (Math.random() > 0.5) {
+                normalWord = pair.a;
+                imposterWord = pair.b;
+            } else {
+                normalWord = pair.b;
+                imposterWord = pair.a;
+            }
+
+            currentPlayer = 1;
+            updatePassScreen();
+            switchScreen('pass-screen');
+        }
+
+        function updatePassScreen() {
+            document.getElementById('player-turn-text').innerText = currentPlayer + ". Játékos";
+        }
+
+        function showWord() {
+            const wordDisplay = document.getElementById('secret-word');
+            
+            if (currentPlayer === imposterIndex) {
+                wordDisplay.innerText = imposterWord;
+                wordDisplay.style.color = "#ffb400"; // Kis vizuális különbség az imposztornak
+            } else {
+                wordDisplay.innerText = normalWord;
+                wordDisplay.style.color = "#fff";
+            }
+
+            switchScreen('word-screen');
+        }
+
+        function hideWord() {
+            currentPlayer++;
+
+            if (currentPlayer > playerCount) {
+                // Mindenki látta a szavát, sorsolunk kezdőt
+                const starterIndex = Math.floor(Math.random() * playerCount) + 1;
+                document.getElementById('starter-player').innerText = starterIndex + ". Játékos";
+                switchScreen('game-screen');
+            } else {
+                // Jön a következő játékos
+                updatePassScreen();
+                switchScreen('pass-screen');
+            }
+        }
+
+        function resetGame() {
+            switchScreen('setup-screen');
+        }
+    </script>
+</body>
+</html>
