@@ -14,24 +14,41 @@
 
     <style>
         :root {
-            /* Alapszínek a menühöz és keretekhez */
-            --bg-top: #2b2b36;
-            --bg-bottom: #1a1a24;
+            /* Dinamikus háttér színek */
+            --bg-yellow: #feca57;
+            --bg-green: #1dd1a1;
+            --bg-red: #ff6b81;
+            
             --btn-main: #ff4757; 
             --btn-shadow: #c0392b;
+            --btn-secondary: #2ed573;
+            --btn-secondary-shadow: #27ae60;
+            --btn-stat: #1e90ff;
+            --btn-stat-shadow: #3742fa;
+            
+            --card-front: #ffffff;
             --card-back: #f1f2f6;
             --text-dark: #2f3542;
             --text-light: #747d8c;
             --easing: cubic-bezier(0.34, 1.56, 0.64, 1);
             
-            /* Dinamikus színek (ezeket a JS cseréli játékosonként) */
+            /* Dinamikus színek játékosonként */
             --current-player-color: #ff4757;
             --current-player-shadow: #c0392b;
         }
         
+        /* Dinamikus mozgó háttér */
+        @keyframes gradient-move {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         body {
             font-family: 'Fredoka', sans-serif;
-            background: linear-gradient(135deg, var(--bg-top), var(--bg-bottom));
+            background: linear-gradient(-45deg, var(--bg-yellow), var(--bg-green), var(--bg-red), var(--bg-yellow));
+            background-size: 400% 400%;
+            animation: gradient-move 10s ease infinite;
             background-attachment: fixed;
             color: var(--text-dark);
             margin: 0;
@@ -51,7 +68,8 @@
             max-width: 400px;
             perspective: 1000px;
             position: relative;
-            height: 620px;
+            height: 650px;
+            transition: opacity 0.3s;
         }
 
         .screen {
@@ -61,10 +79,10 @@
             transform: translate(-50%, -50%) scale(0.9);
             width: 100%;
             box-sizing: border-box;
-            background-color: #ffffff;
-            padding: 35px 20px;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px 20px;
             border-radius: 35px;
-            box-shadow: 0 15px 0 rgba(0,0,0,0.2), 0 25px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 0 rgba(0,0,0,0.1), 0 25px 40px rgba(0,0,0,0.3);
             border: 4px solid #fff;
             opacity: 0;
             visibility: hidden;
@@ -77,76 +95,41 @@
             transform: translate(-50%, -50%) scale(1);
         }
 
+        /* Játék címe */
+        .game-title {
+            color: var(--btn-stat);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
         h1 {
-            color: var(--btn-main);
+            color: var(--current-player-color);
             margin-top: 0;
             font-size: 2.5rem;
             font-weight: 700;
             letter-spacing: 1px;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 0px #ffeaa7;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
             transition: color 0.3s;
         }
 
-        /* Dinamikus h1 a játékosokhoz */
-        h1.dynamic-color {
-            color: var(--current-player-color);
-            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
-        }
-
         .instruction {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 25px;
             color: var(--text-light);
         }
 
-        /* Játékosszám választó */
-        .player-stepper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 30px;
-            background: #f1f2f6;
-            padding: 15px;
-            border-radius: 25px;
-            box-shadow: inset 0 5px 10px rgba(0,0,0,0.05);
-        }
-
-        .stepper-btn {
-            background-color: #ffa502;
-            color: white;
-            border: none;
-            width: 60px;
-            height: 60px;
-            border-radius: 20px;
-            font-size: 2.2rem;
-            font-family: 'Fredoka', sans-serif;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 6px 0 #e67e22;
-            transition: all 0.1s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .stepper-btn:active {
-            transform: translateY(6px);
-            box-shadow: 0 0px 0 #e67e22;
-        }
-
-        #player-count-display {
-            font-size: 3.5rem;
-            font-weight: 700;
-            color: var(--text-dark);
-            min-width: 60px;
-        }
-
         /* 3D Gombok */
         button.main-btn {
-            background-color: var(--btn-main);
+            background-color: var(--btn-secondary);
             color: white;
             border: none;
             padding: 18px 24px;
@@ -156,7 +139,7 @@
             border-radius: 25px;
             cursor: pointer;
             width: 100%;
-            box-shadow: 0 8px 0 var(--btn-shadow);
+            box-shadow: 0 8px 0 var(--btn-secondary-shadow);
             transition: all 0.1s;
             text-transform: uppercase;
             letter-spacing: 1.5px;
@@ -164,28 +147,38 @@
 
         button.main-btn:active {
             transform: translateY(8px);
-            box-shadow: 0 0px 0 var(--btn-shadow);
+            box-shadow: 0 0px 0 var(--btn-secondary-shadow);
         }
 
-        /* Dinamikus "Tovább" gomb */
-        button#next-player-btn {
+        /* Különböző gomb stílusok */
+        button.next-btn {
             background-color: var(--current-player-color);
             box-shadow: 0 8px 0 var(--current-player-shadow);
         }
-        button#next-player-btn:active {
+        button.next-btn:active {
             box-shadow: 0 0px 0 var(--current-player-shadow);
         }
 
+        button.stat-btn {
+            background-color: var(--btn-stat);
+            box-shadow: 0 8px 0 var(--btn-stat-shadow);
+            margin-top: 15px;
+        }
+        button.stat-btn:active {
+            box-shadow: 0 0px 0 var(--btn-stat-shadow);
+        }
+
         .action-area {
-            height: 80px;
+            height: 100px;
             margin-top: 15px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             width: 100%;
         }
 
-        /* Lebegés */
+        /* Kártya lebegés */
         @keyframes float {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
@@ -200,7 +193,6 @@
             cursor: pointer;
             -webkit-user-select: none;
             user-select: none;
-            -webkit-touch-callout: none;
             animation: float 3s ease-in-out infinite;
         }
 
@@ -238,20 +230,12 @@
             -webkit-backface-visibility: hidden;
         }
 
-        /* Dinamikus kártya front (A játékos színe!) */
         .card-front {
             background-color: var(--current-player-color);
             color: white;
             border: 6px solid var(--current-player-shadow);
             background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.1) 20px, transparent 20px, transparent 40px);
             transition: background-color 0.3s, border-color 0.3s;
-        }
-
-        .card-front h2 {
-            font-size: 2rem;
-            color: white;
-            margin-bottom: 10px;
-            text-shadow: 0 4px 0 rgba(0,0,0,0.2);
         }
 
         .card-back {
@@ -266,45 +250,89 @@
             font-weight: 700;
             margin-bottom: 15px;
             text-transform: uppercase;
-            letter-spacing: 1px;
             padding: 5px 15px;
             border-radius: 15px;
             color: white;
         }
 
-        .role-normal { 
-            background-color: #2ed573;
-            box-shadow: 0 4px 0 #27ae60;
-        }
-        
-        .role-imposter { 
-            background-color: #ff4757;
-            box-shadow: 0 4px 0 #c0392b;
-        }
+        .role-normal { background-color: #2ed573; box-shadow: 0 4px 0 #27ae60; }
+        .role-imposter { background-color: #ff4757; box-shadow: 0 4px 0 #c0392b; }
 
         .word-display {
             font-size: clamp(1.8rem, 8vw, 2.5rem);
             font-weight: 700;
             color: var(--text-dark);
             margin: 20px 0;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            hyphens: auto;
             text-align: center;
             width: 100%;
             line-height: 1.1;
         }
 
-        #starter-player {
-            font-size: 2.2rem;
-            color: white;
-            font-weight: 700;
-            margin: 25px 0;
-            padding: 20px;
-            background-color: #1e90ff;
-            border-radius: 25px;
-            box-shadow: 0 8px 0 #3742fa;
-            transform: rotate(-2deg);
+        /* Statisztika felugró ablak */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .popup {
+            background-color: white;
+            width: 85%;
+            max-width: 350px;
+            padding: 30px;
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .popup h2 {
+            margin-top: 0;
+            color: var(--btn-stat);
+        }
+
+        .stat-list {
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+
+        .stat-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: #f1f2f6;
+            font-weight: 600;
+        }
+        
+        .stat-player-normal { color: #2ed573; }
+        .stat-player-imposter { color: #ff4757; background-color: #ffebee; }
+
+        .close-popup {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
         }
 
     </style>
@@ -314,29 +342,26 @@
     <div class="container">
         
         <div id="setup-screen" class="screen active">
+            <h2 class="game-title">Van egy teóriám. <span style="font-size: 2.5rem;">&#129315;</span></h2>
             <h1>IMPOSZTOR</h1>
-            <p class="instruction">Hányan fogtok játszani?</p>
+            <p class="instruction">Hányan fogtok játszani? (3-12)</p>
             
-            <div class="player-stepper">
-                <button class="stepper-btn" onclick="changePlayers(-1)">-</button>
-                <div id="player-count-display">4</div>
-                <button class="stepper-btn" onclick="changePlayers(1)">+</button>
-            </div>
+            <input type="number" id="player-count" min="3" max="12" value="4" style="font-size: 2rem; padding: 10px; border-radius: 15px; border: 2px solid #ccc; text-align: center; width: 100px; margin-bottom: 20px;">
             
             <div class="action-area">
-                <button class="main-btn" onclick="startGame()" style="background-color: #2ed573; box-shadow: 0 8px 0 #27ae60;">START!</button>
+                <button class="main-btn" onclick="startGame()">START!</button>
             </div>
         </div>
 
         <div id="card-screen" class="screen">
-            <h1 id="player-turn-text" class="dynamic-color">1. JÁTÉKOS</h1>
-            <p class="instruction" style="font-size: 1rem;">Tartsd lenyomva a kártyát!</p>
+            <h1 id="player-turn-text">1. JÁTÉKOS</h1>
+            <p class="instruction">Tartsd lenyomva a kártyát!</p>
             
             <div class="card-container" id="card-trigger">
                 <div class="card" id="card-element">
                     <div class="card-face card-front">
-                        <h2>Ki vagy?</h2>
-                        <p style="font-weight: 600; opacity: 0.9;">Nyomd le az ujjad!</p>
+                        <h2 style="font-size: 2.5rem; color: white;">&#129323;</h2>
+                        <p style="font-weight: 600;">Nyomd le az ujjad!</p>
                     </div>
                     <div class="card-face card-back">
                         <div id="role-text" class="role-text">Szerep</div>
@@ -346,87 +371,87 @@
             </div>
 
             <div class="action-area">
-                <button class="main-btn" id="next-player-btn" onclick="nextPlayer()" style="opacity: 0; pointer-events: none;">KÖVETKEZŐ</button>
+                <button class="main-btn next-btn" id="next-player-btn" onclick="nextPlayer()" style="opacity: 0; pointer-events: none;">KÖVETKEZŐ</button>
             </div>
         </div>
 
         <div id="game-screen" class="screen">
             <h1>KÉSZ!</h1>
-            <p class="instruction">Mindenki megkapta a szavát. Ki a gyanús?</p>
-            <p style="font-weight: 600; color: var(--text-light); margin-bottom: 5px;">A játékot kezdi:</p>
-            <div id="starter-player">X. Játékos</div>
+            <p class="instruction">Mindenki megkapta a szavát. <br>Ki a gyanús? <span style="font-size: 1.5rem;">&#129300;</span></p>
             
             <div class="action-area">
-                <button class="main-btn" onclick="resetGame()" style="background-color: #ff4757; box-shadow: 0 8px 0 #c0392b;">ÚJ JÁTÉK</button>
+                <button class="main-btn" onclick="resetGame()">ÚJ JÁTÉK</button>
+                <button class="main-btn stat-btn" onclick="showStatistics()">STATISZTIKA</button>
             </div>
         </div>
 
     </div>
 
+    <div class="overlay" id="stat-overlay">
+        <div class="popup">
+            <button class="close-popup" onclick="closeStatistics()">X</button>
+            <h2>Játék végi Stat</h2>
+            <div class="stat-list" id="stat-list">
+                </div>
+            <button class="main-btn stat-btn" onclick="closeStatistics()">OK</button>
+        </div>
+    </div>
+
     <script>
-        // 12 különféle, jól elkülöníthető szín a játékosoknak
         const playerColors = [
-            { main: "#ff4757", shadow: "#c0392b" }, // Piros
-            { main: "#1e90ff", shadow: "#3742fa" }, // Kék
-            { main: "#2ed573", shadow: "#27ae60" }, // Zöld
-            { main: "#ffa502", shadow: "#e67e22" }, // Narancs
-            { main: "#9b59b6", shadow: "#8e44ad" }, // Lila
-            { main: "#ff6b81", shadow: "#ff4757" }, // Rózsaszín
-            { main: "#1dd1a1", shadow: "#10ac84" }, // Menta
-            { main: "#feca57", shadow: "#ff9f43" }, // Sárga
-            { main: "#5f27cd", shadow: "#341f97" }, // Mélylila
-            { main: "#ff9ff3", shadow: "#f368e0" }, // Magenta
-            { main: "#48dbfb", shadow: "#0abde3" }, // Világoskék
-            { main: "#c8d6e5", shadow: "#8395a7" }  // Szürkéskék
+            { main: "#ff4757", shadow: "#c0392b" }, { main: "#1e90ff", shadow: "#3742fa" }, { main: "#2ed573", shadow: "#27ae60" }, { main: "#ffa502", shadow: "#e67e22" },
+            { main: "#9b59b6", shadow: "#8e44ad" }, { main: "#ff6b81", shadow: "#ff4757" }, { main: "#1dd1a1", shadow: "#10ac84" }, { main: "#feca57", shadow: "#ff9f43" },
+            { main: "#5f27cd", shadow: "#341f97" }, { main: "#ff9ff3", shadow: "#f368e0" }, { main: "#48dbfb", shadow: "#0abde3" }, { main: "#c8d6e5", shadow: "#8395a7" }
         ];
 
         let playerCount = 4;
         let currentPlayer = 1;
         let imposterIndex = 0;
+        let everyoneIsImposter = false;
         let normalWord = "";
         let imposterWord = "";
         let currentScreen = 'setup-screen';
         let wordSeen = false;
+        let playerWords = []; // Statisztikához
 
         function switchScreen(screenId) {
             const currentEl = document.getElementById(currentScreen);
             const nextEl = document.getElementById(screenId);
-
             currentEl.classList.remove('active');
-            
             setTimeout(() => {
                 nextEl.classList.add('active');
                 currentScreen = screenId;
             }, 400); 
         }
 
-        function changePlayers(delta) {
-            const display = document.getElementById('player-count-display');
-            playerCount = Math.max(3, Math.min(12, playerCount + delta));
-            display.innerText = playerCount;
-        }
-
         function startGame() {
-            // Ellenőrizzük, hogy betöltött-e a words.js
             if (typeof wordPairs === 'undefined' || wordPairs.length === 0) {
-                alert("Hiba: A szavak nem töltődtek be! Ellenőrizd a words.js fájlt!");
-                return;
+                alert("Hiba: A szavak nem töltődtek be!"); return;
+            }
+            playerCount = parseInt(document.getElementById('player-count').value);
+            if (isNaN(playerCount) || playerCount < 3 || playerCount > 12) {
+                alert("Kérlek, válassz egy számot 3 és 12 között!"); return;
             }
 
-            imposterIndex = Math.floor(Math.random() * playerCount) + 1;
+            // Véletlenszerűen mindenki imposztor (5% esély)
+            everyoneIsImposter = Math.random() < 0.05;
+            if (!everyoneIsImposter) {
+                imposterIndex = Math.floor(Math.random() * playerCount) + 1;
+            } else {
+                imposterIndex = 0; // Különleges mód
+            }
 
             const randomPairIndex = Math.floor(Math.random() * wordPairs.length);
             const pair = wordPairs[randomPairIndex];
 
             if (Math.random() > 0.5) {
-                normalWord = pair.a;
-                imposterWord = pair.b;
+                normalWord = pair.a; imposterWord = pair.b;
             } else {
-                normalWord = pair.b;
-                imposterWord = pair.a;
+                normalWord = pair.b; imposterWord = pair.a;
             }
 
             currentPlayer = 1;
+            playerWords = [];
             updateCardScreen();
             switchScreen('card-screen');
         }
@@ -437,25 +462,25 @@
             const roleDisplay = document.getElementById('role-text');
             const nextPlayerBtn = document.getElementById('next-player-btn');
             
-            // Dinamikus szín beállítása az aktuális játékos alapján
             const colorObj = playerColors[(currentPlayer - 1) % playerColors.length];
             document.documentElement.style.setProperty('--current-player-color', colorObj.main);
             document.documentElement.style.setProperty('--current-player-shadow', colorObj.shadow);
             
             wordSeen = false;
-            
-            nextPlayerBtn.style.opacity = '0';
-            nextPlayerBtn.style.pointerEvents = 'none';
+            nextPlayerBtn.style.opacity = '0'; nextPlayerBtn.style.pointerEvents = 'none';
             document.getElementById('card-element').classList.remove('flipped');
 
-            if (currentPlayer === imposterIndex) {
+            // Szerep és szó eldöntése
+            if (everyoneIsImposter || currentPlayer === imposterIndex) {
                 roleDisplay.innerText = "Te vagy az imposztor!";
                 roleDisplay.className = "role-text role-imposter";
                 wordDisplay.innerText = imposterWord;
+                playerWords.push({player: currentPlayer, word: imposterWord, isImposter: true});
             } else {
                 roleDisplay.innerText = "Többségben vagy!";
                 roleDisplay.className = "role-text role-normal";
                 wordDisplay.innerText = normalWord;
+                playerWords.push({player: currentPlayer, word: normalWord, isImposter: false});
             }
         }
 
@@ -463,53 +488,52 @@
         const cardElement = document.getElementById('card-element');
         const nextPlayerBtn = document.getElementById('next-player-btn');
 
-        function handlePointerDown(e) {
-            if (currentScreen !== 'card-screen') return;
-            cardElement.classList.add('flipped');
-            wordSeen = true;
-        }
-
+        function handlePointerDown(e) { if (currentScreen !== 'card-screen') return; cardElement.classList.add('flipped'); wordSeen = true; }
         function handlePointerUp(e) {
-            if (currentScreen !== 'card-screen') return;
-            cardElement.classList.remove('flipped');
-            
+            if (currentScreen !== 'card-screen') return; cardElement.classList.remove('flipped');
             if (wordSeen) {
-                setTimeout(() => {
-                    nextPlayerBtn.style.opacity = '1';
-                    nextPlayerBtn.style.pointerEvents = 'auto';
-                }, 400); 
+                setTimeout(() => { nextPlayerBtn.style.opacity = '1'; nextPlayerBtn.style.pointerEvents = 'auto'; }, 400); 
             }
         }
 
-        cardTrigger.addEventListener('pointerdown', handlePointerDown);
-        cardTrigger.addEventListener('pointerup', handlePointerUp);
+        cardTrigger.addEventListener('pointerdown', handlePointerDown); cardTrigger.addEventListener('pointerup', handlePointerUp);
         cardTrigger.addEventListener('pointerleave', handlePointerUp); 
         cardTrigger.addEventListener('touchstart', (e) => { e.preventDefault(); handlePointerDown(e); }, {passive: false});
         cardTrigger.addEventListener('touchend', (e) => { e.preventDefault(); handlePointerUp(e); }, {passive: false});
 
         function nextPlayer() {
             currentPlayer++;
-
-            if (currentPlayer > playerCount) {
-                const starterIndex = Math.floor(Math.random() * playerCount) + 1;
-                document.getElementById('starter-player').innerText = starterIndex + ". JÁTÉKOS";
-                switchScreen('game-screen');
-            } else {
-                const cardScreen = document.getElementById('card-screen');
-                cardScreen.style.opacity = '0';
-                cardScreen.style.transform = 'translate(-50%, -50%) scale(0.9)';
-                
-                setTimeout(() => {
-                    updateCardScreen();
-                    cardScreen.style.opacity = '1';
-                    cardScreen.style.transform = 'translate(-50%, -50%) scale(1)';
-                }, 300);
+            if (currentPlayer > playerCount) { switchScreen('game-screen'); } else {
+                const container = document.querySelector('.container');
+                container.style.opacity = '0';
+                setTimeout(() => { updateCardScreen(); container.style.opacity = '1'; }, 300);
             }
         }
 
-        function resetGame() {
-            switchScreen('setup-screen');
+        function resetGame() { switchScreen('setup-screen'); }
+
+        function showStatistics() {
+            const statOverlay = document.getElementById('stat-overlay');
+            const statList = document.getElementById('stat-list');
+            statList.innerHTML = ''; // List ürítése
+
+            playerWords.forEach(item => {
+                const statItem = document.createElement('div');
+                statItem.className = 'stat-item';
+                
+                if (item.isImposter) {
+                    statItem.classList.add('stat-player-imposter');
+                    statItem.innerHTML = `${item.player}. Játékos: <span style="color:red;">${item.word} (IMPOSZTOR!)</span>`;
+                } else {
+                    statItem.classList.add('stat-player-normal');
+                    statItem.innerHTML = `${item.player}. Játékos: <span style="color:green;">${item.word}</span>`;
+                }
+                statList.appendChild(statItem);
+            });
+            statOverlay.classList.add('active');
         }
+
+        function closeStatistics() { document.getElementById('stat-overlay').classList.remove('active'); }
     </script>
 </body>
 </html>
