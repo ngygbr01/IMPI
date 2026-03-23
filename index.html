@@ -21,8 +21,9 @@
             
             --btn-main: #ff4757; 
             --btn-shadow: #c0392b;
-            --btn-secondary: #2ed573;
-            --btn-secondary-shadow: #27ae60;
+            /* ÚJ JÓ ZÖLD SZÍN */
+            --btn-secondary: #0be881;
+            --btn-secondary-shadow: #05c46b;
             --btn-stat: #1e90ff;
             --btn-stat-shadow: #3742fa;
             
@@ -30,7 +31,9 @@
             --card-back: #f1f2f6;
             --text-dark: #2f3542;
             --text-light: #747d8c;
+            /* Finomabb, rugós animációs görbe */
             --easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --smooth-fade: cubic-bezier(0.25, 1, 0.5, 1);
             
             /* Dinamikus színek játékosonként */
             --current-player-color: #ff4757;
@@ -48,7 +51,7 @@
             font-family: 'Fredoka', sans-serif;
             background: linear-gradient(-45deg, var(--bg-yellow), var(--bg-green), var(--bg-red), var(--bg-yellow));
             background-size: 400% 400%;
-            animation: gradient-move 10s ease infinite;
+            animation: gradient-move 12s ease infinite;
             background-attachment: fixed;
             color: var(--text-dark);
             margin: 0;
@@ -76,7 +79,7 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(0.9);
+            transform: translate(-50%, -50%) scale(0.85);
             width: 100%;
             box-sizing: border-box;
             background-color: rgba(255, 255, 255, 0.95);
@@ -86,7 +89,7 @@
             border: 4px solid #fff;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.4s var(--easing);
+            transition: opacity 0.4s var(--smooth-fade), transform 0.5s var(--easing);
         }
 
         .screen.active {
@@ -159,7 +162,7 @@
         }
 
         .stepper-btn:active {
-            transform: translateY(6px);
+            transform: translateY(6px) scale(0.95);
             box-shadow: 0 0px 0 #e67e22;
         }
 
@@ -183,7 +186,7 @@
             cursor: pointer;
             width: 100%;
             box-shadow: 0 8px 0 var(--btn-secondary-shadow);
-            transition: all 0.1s;
+            transition: transform 0.1s, box-shadow 0.1s, opacity 0.2s;
             text-transform: uppercase;
             letter-spacing: 1.5px;
         }
@@ -195,9 +198,8 @@
 
         /* Fix színű Következő gomb */
         button.next-btn {
-            background-color: #5f27cd; /* Fix mélylila szín */
+            background-color: #5f27cd; 
             box-shadow: 0 8px 0 #341f97;
-            transition: opacity 0.1s; /* Gyors eltűnés */
         }
         button.next-btn:active {
             box-shadow: 0 0px 0 #341f97;
@@ -250,7 +252,8 @@
             height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            /* Finomabb, rugósabb kártyafordítás */
+            transition: transform 0.6s var(--easing);
             border-radius: 30px;
             box-shadow: 0 15px 25px rgba(0,0,0,0.2);
         }
@@ -279,14 +282,14 @@
             color: white;
             border: 6px solid var(--current-player-shadow);
             background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.1) 20px, transparent 20px, transparent 40px);
-            transition: background-color 0.3s, border-color 0.3s;
+            transition: background-color 0.4s var(--smooth-fade), border-color 0.4s var(--smooth-fade);
         }
 
         .card-back {
             background-color: var(--card-back);
             transform: rotateY(180deg);
             border: 6px solid var(--current-player-color);
-            transition: border-color 0.3s;
+            transition: border-color 0.4s var(--smooth-fade);
         }
 
         .role-text {
@@ -299,7 +302,8 @@
             color: white;
         }
 
-        .role-normal { background-color: #2ed573; box-shadow: 0 4px 0 #27ae60; }
+        /* ÚJ ZÖLD a normál szerepnél */
+        .role-normal { background-color: var(--btn-secondary); box-shadow: 0 4px 0 var(--btn-secondary-shadow); }
         .role-imposter { background-color: #ff4757; box-shadow: 0 4px 0 #c0392b; }
 
         .word-display {
@@ -312,20 +316,21 @@
             line-height: 1.1;
         }
 
-        /* Statisztika felugró ablak */
+        /* --- VAGÁNY JÁTÉKOS STATISZTIKA FELUGRÓ --- */
         .overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.7);
+            background-color: rgba(43, 43, 54, 0.8);
+            backdrop-filter: blur(5px);
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s;
+            transition: all 0.3s var(--smooth-fade);
             z-index: 1000;
         }
         
@@ -335,52 +340,85 @@
         }
 
         .popup {
-            background-color: white;
-            width: 85%;
-            max-width: 350px;
-            padding: 30px;
-            border-radius: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            background-color: #f1f2f6;
+            width: 90%;
+            max-width: 360px;
+            padding: 25px;
+            border-radius: 35px;
+            /* Játékos "vastag" keret */
+            border: 6px solid var(--text-dark);
+            box-shadow: 0 20px 0 rgba(0,0,0,0.2);
             position: relative;
+            transform: scale(0.7) translateY(30px);
+            transition: transform 0.4s var(--easing);
+        }
+
+        .overlay.active .popup {
+            transform: scale(1) translateY(0);
         }
 
         .popup h2 {
             margin-top: 0;
-            color: var(--btn-stat);
+            color: var(--text-dark);
+            font-size: 2.2rem;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 20px;
         }
 
         .stat-list {
             text-align: left;
-            max-height: 300px;
+            max-height: 350px;
             overflow-y: auto;
-            margin-bottom: 20px;
-            padding-right: 10px;
+            margin-bottom: 25px;
+            padding-right: 5px;
         }
 
+        /* Gördítősáv formázása */
+        .stat-list::-webkit-scrollbar { width: 8px; }
+        .stat-list::-webkit-scrollbar-track { background: #e1e2e6; border-radius: 10px; }
+        .stat-list::-webkit-scrollbar-thumb { background: #a4b0be; border-radius: 10px; }
+
         .stat-item {
-            margin-bottom: 10px;
-            padding: 12px;
-            border-radius: 10px;
-            background-color: #f8f9fa; /* Világos háttér, hogy a színek kiemelkedjenek */
-            border-left: 5px solid #ccc; /* Alap keret, amit a JS át fog színezni */
+            margin-bottom: 12px;
+            padding: 12px 15px;
+            border-radius: 20px;
+            background-color: white;
+            border: 4px solid #ccc; /* Dinamikusan változik JS-ből */
             font-weight: 600;
-            font-size: 1.1rem;
             display: flex;
-            flex-direction: column;
-            gap: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.05);
+            /* Berobbanó animáció a listaelemeknek */
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideIn 0.4s var(--easing) forwards;
+        }
+
+        @keyframes slideIn {
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .close-popup {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
+            top: -20px;
+            right: -10px;
+            background: #ff4757;
+            border: 4px solid var(--text-dark);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
             font-size: 1.5rem;
             cursor: pointer;
-            color: var(--text-light);
+            color: white;
             font-weight: bold;
+            box-shadow: 0 4px 0 var(--text-dark);
+            transition: transform 0.1s;
+        }
+        .close-popup:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 var(--text-dark);
         }
 
     </style>
@@ -390,7 +428,7 @@
     <div class="container">
         
         <div id="setup-screen" class="screen active">
-            <h2 class="game-title">Van egy teóriám... 🤣</h2>
+            <h2 class="game-title">Van egy teóriám. 🤣</h2>
             <h1>IMPOSZTOR</h1>
             <p class="instruction">Hányan fogtok játszani?</p>
             
@@ -435,7 +473,7 @@
             
             <div class="action-area">
                 <button class="main-btn" onclick="resetGame()">ÚJ JÁTÉK</button>
-                <button class="main-btn stat-btn" onclick="showStatistics()">STATISZTIKA</button>
+                <button class="main-btn stat-btn" onclick="showStatistics()">EREDMÉNYEK 🏆</button>
             </div>
         </div>
 
@@ -444,16 +482,16 @@
     <div class="overlay" id="stat-overlay">
         <div class="popup">
             <button class="close-popup" onclick="closeStatistics()">X</button>
-            <h2>Játék végi Stat</h2>
+            <h2>Statisztika</h2>
             <div class="stat-list" id="stat-list">
                 </div>
-            <button class="main-btn stat-btn" onclick="closeStatistics()">OK</button>
+            <button class="main-btn stat-btn" onclick="closeStatistics()">KÉSZ!</button>
         </div>
     </div>
 
     <script>
         const playerColors = [
-            { main: "#ff4757", shadow: "#c0392b" }, { main: "#1e90ff", shadow: "#3742fa" }, { main: "#2ed573", shadow: "#27ae60" }, { main: "#ffa502", shadow: "#e67e22" },
+            { main: "#ff4757", shadow: "#c0392b" }, { main: "#1e90ff", shadow: "#3742fa" }, { main: "#0be881", shadow: "#05c46b" }, { main: "#ffa502", shadow: "#e67e22" },
             { main: "#9b59b6", shadow: "#8e44ad" }, { main: "#ff6b81", shadow: "#ff4757" }, { main: "#1dd1a1", shadow: "#10ac84" }, { main: "#feca57", shadow: "#ff9f43" },
             { main: "#5f27cd", shadow: "#341f97" }, { main: "#ff9ff3", shadow: "#f368e0" }, { main: "#48dbfb", shadow: "#0abde3" }, { main: "#c8d6e5", shadow: "#8395a7" }
         ];
@@ -478,7 +516,6 @@
             }, 400); 
         }
 
-        // Plusz/mínusz gomb logikája
         function changePlayers(delta) {
             const display = document.getElementById('player-count-display');
             playerCount = Math.max(3, Math.min(12, playerCount + delta));
@@ -495,7 +532,7 @@
             if (!everyoneIsImposter) {
                 imposterIndex = Math.floor(Math.random() * playerCount) + 1;
             } else {
-                imposterIndex = 0; // Különleges mód
+                imposterIndex = 0; 
             }
 
             const randomPairIndex = Math.floor(Math.random() * wordPairs.length);
@@ -527,7 +564,6 @@
             nextPlayerBtn.style.opacity = '0'; nextPlayerBtn.style.pointerEvents = 'none';
             document.getElementById('card-element').classList.remove('flipped');
 
-            // Szerep és szó eldöntése
             if (everyoneIsImposter || currentPlayer === imposterIndex) {
                 roleDisplay.innerText = "Te vagy az imposztor!";
                 roleDisplay.className = "role-text role-imposter";
@@ -549,7 +585,7 @@
         function handlePointerUp(e) {
             if (currentScreen !== 'card-screen') return; cardElement.classList.remove('flipped');
             if (wordSeen) {
-                setTimeout(() => { nextPlayerBtn.style.opacity = '1'; nextPlayerBtn.style.pointerEvents = 'auto'; }, 400); 
+                setTimeout(() => { nextPlayerBtn.style.opacity = '1'; nextPlayerBtn.style.pointerEvents = 'auto'; }, 500); // Kicsit várunk a rugós animáció miatt
             }
         }
 
@@ -559,14 +595,12 @@
         cardTrigger.addEventListener('touchend', (e) => { e.preventDefault(); handlePointerUp(e); }, {passive: false});
 
         function nextPlayer() {
-            // ITT A JAVÍTÁS: A gomb azonnal, várakozás nélkül eltűnik!
             const nextBtn = document.getElementById('next-player-btn');
             nextBtn.style.opacity = '0';
             nextBtn.style.pointerEvents = 'none';
 
             currentPlayer++;
             if (currentPlayer > playerCount) { 
-                // Véletlenszerű kezdőjátékos sorsolás
                 const starterIndex = Math.floor(Math.random() * playerCount) + 1;
                 document.getElementById('starter-player').innerText = starterIndex + ". JÁTÉKOS kezd!";
                 
@@ -583,27 +617,39 @@
         function showStatistics() {
             const statOverlay = document.getElementById('stat-overlay');
             const statList = document.getElementById('stat-list');
-            statList.innerHTML = ''; // List ürítése
+            statList.innerHTML = ''; 
 
-            playerWords.forEach(item => {
+            playerWords.forEach((item, index) => {
                 const statItem = document.createElement('div');
                 statItem.className = 'stat-item';
                 
-                // Kiszámoljuk a játékos színét
+                // Animációs késleltetés (Látványosan ugranak be egymás után)
+                statItem.style.animationDelay = `${index * 0.1}s`;
+                
                 const playerColorObj = playerColors[(item.player - 1) % playerColors.length];
                 const playerColor = playerColorObj.main;
                 
-                // Beállítjuk a kis kártya bal oldali csíkját a játékos színére
-                statItem.style.borderLeftColor = playerColor;
-                
-                // Formázzuk a Játékos nevét a saját színével
                 const playerNameHtml = `<span style="color: ${playerColor}; font-weight: 800; font-size: 1.2rem; text-transform: uppercase;">${item.player}. Játékos</span>`;
 
-                // Hozzáadjuk a szót (Imposztor = Piros, Normál = Zöld)
                 if (item.isImposter) {
-                    statItem.innerHTML = `${playerNameHtml} <span style="color:#ff4757; font-weight: 800; font-size: 1.1rem;">${item.word} (IMPOSZTOR!)</span>`;
+                    statItem.style.borderColor = '#ff4757';
+                    statItem.style.backgroundColor = '#ffebee'; // Enyhén pirosas háttér
+                    statItem.innerHTML = `
+                        <div style="font-size: 2.2rem; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));">🕵️</div>
+                        <div style="line-height: 1.2;">
+                            ${playerNameHtml}<br>
+                            <span style="color:#e84118; font-weight: 800; font-size: 1.1rem;">${item.word}</span>
+                        </div>
+                    `;
                 } else {
-                    statItem.innerHTML = `${playerNameHtml} <span style="color:#2ed573; font-weight: 800; font-size: 1.1rem;">${item.word}</span>`;
+                    statItem.style.borderColor = '#0be881'; // Az új JÓ zöld
+                    statItem.innerHTML = `
+                        <div style="font-size: 2.2rem; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));">✅</div>
+                        <div style="line-height: 1.2;">
+                            ${playerNameHtml}<br>
+                            <span style="color:#05c46b; font-weight: 800; font-size: 1.1rem;">${item.word}</span>
+                        </div>
+                    `;
                 }
                 
                 statList.appendChild(statItem);
