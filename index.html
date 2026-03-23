@@ -10,26 +10,27 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
 
+    <script src="words.js"></script>
+
     <style>
         :root {
-            /* Élénk, modern játékos színek */
-            --bg-top: #4e54c8;
-            --bg-bottom: #8f94fb;
-            --primary: #ff4757; /* Pirosas/Rózsaszínes */
-            --primary-shadow: #c0392b;
-            --secondary: #2ed573; /* Zöld */
-            --secondary-shadow: #27ae60;
-            --accent: #ffa502; /* Narancs/Sárga */
-            --accent-shadow: #e67e22;
-            --card-front: #ffffff;
+            /* Alapszínek a menühöz és keretekhez */
+            --bg-top: #2b2b36;
+            --bg-bottom: #1a1a24;
+            --btn-main: #ff4757; 
+            --btn-shadow: #c0392b;
             --card-back: #f1f2f6;
             --text-dark: #2f3542;
             --text-light: #747d8c;
-            --easing: cubic-bezier(0.34, 1.56, 0.64, 1); /* Rugós animáció */
+            --easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+            
+            /* Dinamikus színek (ezeket a JS cseréli játékosonként) */
+            --current-player-color: #ff4757;
+            --current-player-shadow: #c0392b;
         }
         
         body {
-            font-family: 'Fredoka', sans-serif; /* Az új dundi betűtípus */
+            font-family: 'Fredoka', sans-serif;
             background: linear-gradient(135deg, var(--bg-top), var(--bg-bottom));
             background-attachment: fixed;
             color: var(--text-dark);
@@ -63,7 +64,7 @@
             background-color: #ffffff;
             padding: 35px 20px;
             border-radius: 35px;
-            box-shadow: 0 15px 0 rgba(0,0,0,0.15), 0 25px 30px rgba(0,0,0,0.2); /* 3D doboz hatás */
+            box-shadow: 0 15px 0 rgba(0,0,0,0.2), 0 25px 40px rgba(0,0,0,0.5);
             border: 4px solid #fff;
             opacity: 0;
             visibility: hidden;
@@ -77,13 +78,20 @@
         }
 
         h1 {
-            color: var(--primary);
+            color: var(--btn-main);
             margin-top: 0;
             font-size: 2.5rem;
             font-weight: 700;
             letter-spacing: 1px;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 0px #ffeaa7; /* Játékos szöveg árnyék */
+            text-shadow: 2px 2px 0px #ffeaa7;
+            transition: color 0.3s;
+        }
+
+        /* Dinamikus h1 a játékosokhoz */
+        h1.dynamic-color {
+            color: var(--current-player-color);
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
         }
 
         .instruction {
@@ -107,7 +115,7 @@
         }
 
         .stepper-btn {
-            background-color: var(--accent);
+            background-color: #ffa502;
             color: white;
             border: none;
             width: 60px;
@@ -117,7 +125,7 @@
             font-family: 'Fredoka', sans-serif;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 6px 0 var(--accent-shadow);
+            box-shadow: 0 6px 0 #e67e22;
             transition: all 0.1s;
             display: flex;
             align-items: center;
@@ -126,7 +134,7 @@
 
         .stepper-btn:active {
             transform: translateY(6px);
-            box-shadow: 0 0px 0 var(--accent-shadow);
+            box-shadow: 0 0px 0 #e67e22;
         }
 
         #player-count-display {
@@ -138,7 +146,7 @@
 
         /* 3D Gombok */
         button.main-btn {
-            background-color: var(--secondary);
+            background-color: var(--btn-main);
             color: white;
             border: none;
             padding: 18px 24px;
@@ -148,7 +156,7 @@
             border-radius: 25px;
             cursor: pointer;
             width: 100%;
-            box-shadow: 0 8px 0 var(--secondary-shadow);
+            box-shadow: 0 8px 0 var(--btn-shadow);
             transition: all 0.1s;
             text-transform: uppercase;
             letter-spacing: 1.5px;
@@ -156,7 +164,16 @@
 
         button.main-btn:active {
             transform: translateY(8px);
-            box-shadow: 0 0px 0 var(--secondary-shadow);
+            box-shadow: 0 0px 0 var(--btn-shadow);
+        }
+
+        /* Dinamikus "Tovább" gomb */
+        button#next-player-btn {
+            background-color: var(--current-player-color);
+            box-shadow: 0 8px 0 var(--current-player-shadow);
+        }
+        button#next-player-btn:active {
+            box-shadow: 0 0px 0 var(--current-player-shadow);
         }
 
         .action-area {
@@ -168,7 +185,7 @@
             width: 100%;
         }
 
-        /* Kártya és lebegő animáció */
+        /* Lebegés */
         @keyframes float {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
@@ -184,10 +201,9 @@
             -webkit-user-select: none;
             user-select: none;
             -webkit-touch-callout: none;
-            animation: float 3s ease-in-out infinite; /* Lebegés */
+            animation: float 3s ease-in-out infinite;
         }
 
-        /* Ha le van nyomva, ne lebegjen tovább */
         .card-container:active {
             animation: none; 
             transform: scale(0.95);
@@ -198,7 +214,7 @@
             height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Rugós forgás */
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border-radius: 30px;
             box-shadow: 0 15px 25px rgba(0,0,0,0.2);
         }
@@ -222,12 +238,13 @@
             -webkit-backface-visibility: hidden;
         }
 
-        /* Kártya hátlap (alapállapot) */
+        /* Dinamikus kártya front (A játékos színe!) */
         .card-front {
-            background-color: var(--primary);
+            background-color: var(--current-player-color);
             color: white;
-            border: 6px solid #ff7b89;
+            border: 6px solid var(--current-player-shadow);
             background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.1) 20px, transparent 20px, transparent 40px);
+            transition: background-color 0.3s, border-color 0.3s;
         }
 
         .card-front h2 {
@@ -237,11 +254,11 @@
             text-shadow: 0 4px 0 rgba(0,0,0,0.2);
         }
 
-        /* Kártya előlap (felfedett szó) */
         .card-back {
             background-color: var(--card-back);
             transform: rotateY(180deg);
-            border: 6px solid var(--accent);
+            border: 6px solid var(--current-player-color);
+            transition: border-color 0.3s;
         }
 
         .role-text {
@@ -252,18 +269,17 @@
             letter-spacing: 1px;
             padding: 5px 15px;
             border-radius: 15px;
+            color: white;
         }
 
         .role-normal { 
-            color: white;
-            background-color: var(--secondary);
-            box-shadow: 0 4px 0 var(--secondary-shadow);
+            background-color: #2ed573;
+            box-shadow: 0 4px 0 #27ae60;
         }
         
         .role-imposter { 
-            color: white;
-            background-color: var(--primary);
-            box-shadow: 0 4px 0 var(--primary-shadow);
+            background-color: #ff4757;
+            box-shadow: 0 4px 0 #c0392b;
         }
 
         .word-display {
@@ -285,10 +301,10 @@
             font-weight: 700;
             margin: 25px 0;
             padding: 20px;
-            background-color: var(--primary);
+            background-color: #1e90ff;
             border-radius: 25px;
-            box-shadow: 0 8px 0 var(--primary-shadow);
-            transform: rotate(-2deg); /* Kicsit játékosan megdöntve */
+            box-shadow: 0 8px 0 #3742fa;
+            transform: rotate(-2deg);
         }
 
     </style>
@@ -308,12 +324,12 @@
             </div>
             
             <div class="action-area">
-                <button class="main-btn" onclick="startGame()">START!</button>
+                <button class="main-btn" onclick="startGame()" style="background-color: #2ed573; box-shadow: 0 8px 0 #27ae60;">START!</button>
             </div>
         </div>
 
         <div id="card-screen" class="screen">
-            <h1 id="player-turn-text">1. Játékos</h1>
+            <h1 id="player-turn-text" class="dynamic-color">1. JÁTÉKOS</h1>
             <p class="instruction" style="font-size: 1rem;">Tartsd lenyomva a kártyát!</p>
             
             <div class="card-container" id="card-trigger">
@@ -330,7 +346,7 @@
             </div>
 
             <div class="action-area">
-                <button class="main-btn" id="next-player-btn" onclick="nextPlayer()" style="opacity: 0; pointer-events: none; background-color: var(--accent); box-shadow: 0 8px 0 var(--accent-shadow);">Következő</button>
+                <button class="main-btn" id="next-player-btn" onclick="nextPlayer()" style="opacity: 0; pointer-events: none;">KÖVETKEZŐ</button>
             </div>
         </div>
 
@@ -341,27 +357,27 @@
             <div id="starter-player">X. Játékos</div>
             
             <div class="action-area">
-                <button class="main-btn" onclick="resetGame()">ÚJ JÁTÉK</button>
+                <button class="main-btn" onclick="resetGame()" style="background-color: #ff4757; box-shadow: 0 8px 0 #c0392b;">ÚJ JÁTÉK</button>
             </div>
         </div>
 
     </div>
 
     <script>
-        const wordPairs = [
-            { a: "Szegedi halászlé", b: "Bajai halászlé" },
-            { a: "Szegedi Dóm", b: "Esztergomi Bazilika" },
-            { a: "Kárász utca", b: "Váci utca" },
-            { a: "Szegedi papucs", b: "Gumicsizma" },
-            { a: "Pick Szalámi", b: "Herz Szalámi" },
-            { a: "Faszkalap", b: "Seggfej" },
-            { a: "Kurva", b: "Rongy" },
-            { a: "Beszari", b: "Fosós" },
-            { a: "Zokniszandál", b: "Crocs" },
-            { a: "Mamahotel", b: "Kollégium" },
-            { a: "Sörhas", b: "Kockahas" },
-            { a: "Puki", b: "Fing" },
-            { a: "Másnaposság", b: "Részegség" }
+        // 12 különféle, jól elkülöníthető szín a játékosoknak
+        const playerColors = [
+            { main: "#ff4757", shadow: "#c0392b" }, // Piros
+            { main: "#1e90ff", shadow: "#3742fa" }, // Kék
+            { main: "#2ed573", shadow: "#27ae60" }, // Zöld
+            { main: "#ffa502", shadow: "#e67e22" }, // Narancs
+            { main: "#9b59b6", shadow: "#8e44ad" }, // Lila
+            { main: "#ff6b81", shadow: "#ff4757" }, // Rózsaszín
+            { main: "#1dd1a1", shadow: "#10ac84" }, // Menta
+            { main: "#feca57", shadow: "#ff9f43" }, // Sárga
+            { main: "#5f27cd", shadow: "#341f97" }, // Mélylila
+            { main: "#ff9ff3", shadow: "#f368e0" }, // Magenta
+            { main: "#48dbfb", shadow: "#0abde3" }, // Világoskék
+            { main: "#c8d6e5", shadow: "#8395a7" }  // Szürkéskék
         ];
 
         let playerCount = 4;
@@ -391,6 +407,12 @@
         }
 
         function startGame() {
+            // Ellenőrizzük, hogy betöltött-e a words.js
+            if (typeof wordPairs === 'undefined' || wordPairs.length === 0) {
+                alert("Hiba: A szavak nem töltődtek be! Ellenőrizd a words.js fájlt!");
+                return;
+            }
+
             imposterIndex = Math.floor(Math.random() * playerCount) + 1;
 
             const randomPairIndex = Math.floor(Math.random() * wordPairs.length);
@@ -414,6 +436,11 @@
             const wordDisplay = document.getElementById('secret-word');
             const roleDisplay = document.getElementById('role-text');
             const nextPlayerBtn = document.getElementById('next-player-btn');
+            
+            // Dinamikus szín beállítása az aktuális játékos alapján
+            const colorObj = playerColors[(currentPlayer - 1) % playerColors.length];
+            document.documentElement.style.setProperty('--current-player-color', colorObj.main);
+            document.documentElement.style.setProperty('--current-player-shadow', colorObj.shadow);
             
             wordSeen = false;
             
